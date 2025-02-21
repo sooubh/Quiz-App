@@ -43,130 +43,94 @@ const questions = [
             { text: "Nitrogen", correct: false },
             { text: "Hydrogen", correct: false }
         ]
-    },
-    {
-        question: "What is the boiling point of water at sea level?",
-        answers: [
-            { text: "100°C", correct: true },
-            { text: "90°C", correct: false },
-            { text: "110°C", correct: false },
-            { text: "120°C", correct: false }
-        ]
-    },
-    {
-        question: "Who developed the theory of relativity?",
-        answers: [
-            { text: "Albert Einstein", correct: true },
-            { text: "Isaac Newton", correct: false },
-            { text: "Galileo Galilei", correct: false },
-            { text: "Nikola Tesla", correct: false }
-        ]
-    },
-    {
-        question: "What is the hardest natural substance on Earth?",
-        answers: [
-            { text: "Diamond", correct: true },
-            { text: "Gold", correct: false },
-            { text: "Iron", correct: false },
-            { text: "Platinum", correct: false }
-        ]
-    },
-    {
-        question: "How many continents are there on Earth?",
-        answers: [
-            { text: "Seven", correct: true },
-            { text: "Five", correct: false },
-            { text: "Six", correct: false },
-            { text: "Eight", correct: false }
-        ]
-    },
-    {
-        question: "Which element is necessary for breathing and combustion?",
-        answers: [
-            { text: "Oxygen", correct: true },
-            { text: "Carbon", correct: false },
-            { text: "Nitrogen", correct: false },
-            { text: "Helium", correct: false }
-        ]
     }
 ];
 
 const questionText = document.querySelector("#question");
-const AnswerText = document.querySelector("#ans-button");
-const NextBtn = document.querySelector(".next-btn");
+const answerButtons = document.querySelector("#ans-button");
+const nextBtn = document.querySelector(".next-btn");
 
-let CurrentQuestionIndex = 0;
+let currentQuestionIndex = 0;
 let score = 0;
-function slectanswers(e) {
-    const Slecetbtn = e.target;
-const iscorrect = Slecetbtn.dataset.correct === "true";
-    if (iscorrect) {
-        Slecetbtn.classList.add("correct");
+
+function selectAnswer(e) {
+    const selectedButton = e.target;
+    const isCorrect = selectedButton.dataset.correct === "true";
+    
+    if (isCorrect) {
+        selectedButton.classList.add("correct");
         score++;
-    }else{
-        Slecetbtn.classList.add("incorrect")
+    } else {
+        selectedButton.classList.add("incorrect");
     }
-    Array.from(AnswerText.children).forEach(button =>{
-        if(button.dataset.correct === "true"){
-            button.classList.add("correct")
+    
+    Array.from(answerButtons.children).forEach(button => {
+        if (button.dataset.correct === "true") {
+            button.classList.add("correct");
         }
         button.disabled = true;
     });
-    NextBtn.style.display ="block";
+    
+    nextBtn.style.display = "block";
 }
-function Startquiz() {
+
+function startQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    nextBtn.innerHTML = "Next";
+    nextBtn.style.display = "none";
+    showQuestion();
+}
+
+function showQuestion() {
     resetState();
-    let CurrentQuestionIndex = 0;
-    let score = 0;
-    NextBtn.innerHTML = "Next"
-    showQuestions();   
-}
- function showQuestions(){
- let currentQuestion = questions[CurrentQuestionIndex]
-let questionNo = CurrentQuestionIndex + 1;
- questionText.innerHTML = questionNo + "." +currentQuestion.question;
-
- currentQuestion.answers.forEach(answers => {
-    const button = document.createElement("button");
-    button.innerHTML = answers.text;
-    button.classList.add("btn");
-    AnswerText.appendChild(button)  
-    if(answers.correct){
-        button.dataset.correct = answers.correct;
-    }
-    button.addEventListener("click", slectanswers)  
- });
-
-
- }
- function resetState(){
-    NextBtn.style.display = "none"
-    while (AnswerText.firstChild) {
-        AnswerText.removeChild(AnswerText.firstChild)
+    let currentQuestion = questions[currentQuestionIndex];
+    let questionNo = currentQuestionIndex + 1;
+    questionText.innerHTML = questionNo + ". " + currentQuestion.question;
+    
+    currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerHTML = answer.text;
+        button.classList.add("btn");
+        answerButtons.appendChild(button);
         
+        if (answer.correct) {
+            button.dataset.correct = "true";
+        }
+        
+        button.addEventListener("click", selectAnswer);
+    });
+}
+
+function resetState() {
+    nextBtn.style.display = "none";
+    while (answerButtons.firstChild) {
+        answerButtons.removeChild(answerButtons.firstChild);
     }
- }
-function showscore() {
+}
+
+function showScore() {
     resetState();
-    questionText.innerHTML =`You Scored ${score} out of ${questions.length} !`;
-    NextBtn.innerHTML = "Play Again"
-    NextBtn.style.display = "block"
+    questionText.innerHTML = `You scored ${score} out of ${questions.length}!`;
+    nextBtn.innerHTML = "Play Again";
+    nextBtn.style.display = "block";
 }
- function handlenextbutton() {
-    CurrentQuestionIndex++;
-    if (CurrentQuestionIndex < questions.length) {
-        showQuestions();
-        
-    }else{
-        showscore();
-    }
- }
 
- NextBtn.addEventListener("click", ()=>{
-    if (CurrentQuestionIndex< questions.length) {
-        handlenextbutton();
-    }else{
-        Startquiz();
+function handleNextButton() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < questions.length) {
+        showQuestion();
+    } else {
+        showScore();
     }
- })
- Startquiz();
+}
+
+nextBtn.addEventListener("click", () => {
+    if (currentQuestionIndex < questions.length) {
+        handleNextButton();
+    } else {
+        startQuiz();
+    }
+});
+
+startQuiz();
